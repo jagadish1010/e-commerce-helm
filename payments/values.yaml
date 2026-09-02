@@ -1,0 +1,100 @@
+# Switch environment with: --set env=dev|qa|stage|prod
+# Helm merges that block into "config" (same pattern as cs-service-apikey).
+env: dev
+
+appName: payments
+microServiceName: payments
+
+image:
+  repository: nginx
+  tag: ""
+
+service:
+  type: ClusterIP
+  port: 80
+
+serviceAccount:
+  create: true
+
+# Defaults. The matching env block below overwrites these keys.
+config:
+  replicaCount: 1
+  imagePullPolicy: IfNotPresent
+  serviceAccountName: payments-dev
+  resources: {}
+  ingress:
+    enabled: false
+    host: payments.local
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 3
+    targetCPUUtilizationPercentage: 80
+
+dev:
+  replicaCount: 1
+  imagePullPolicy: IfNotPresent
+  serviceAccountName: payments-dev
+  resources: {}
+  ingress:
+    enabled: false
+    host: payments.dev.local
+  autoscaling:
+    enabled: false
+
+qa:
+  replicaCount: 2
+  imagePullPolicy: Always
+  serviceAccountName: payments-qa
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi
+  ingress:
+    enabled: true
+    host: payments.qa.local
+  autoscaling:
+    enabled: false
+
+stage:
+  replicaCount: 2
+  imagePullPolicy: Always
+  serviceAccountName: payments-stage
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+  ingress:
+    enabled: true
+    host: payments.stage.local
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 4
+    targetCPUUtilizationPercentage: 75
+
+prod:
+  replicaCount: 3
+  imagePullPolicy: Always
+  serviceAccountName: payments-prod
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 512Mi
+  ingress:
+    enabled: true
+    host: payments.example.com
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 6
+    targetCPUUtilizationPercentage: 70

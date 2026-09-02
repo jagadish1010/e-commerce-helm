@@ -1,0 +1,100 @@
+# Switch environment with: --set env=dev|qa|stage|prod
+# Helm merges that block into "config" (same pattern as cs-service-apikey).
+env: dev
+
+appName: shipping
+microServiceName: shipping
+
+image:
+  repository: nginx
+  tag: ""
+
+service:
+  type: ClusterIP
+  port: 80
+
+serviceAccount:
+  create: true
+
+# Defaults. The matching env block below overwrites these keys.
+config:
+  replicaCount: 1
+  imagePullPolicy: IfNotPresent
+  serviceAccountName: shipping-dev
+  resources: {}
+  ingress:
+    enabled: false
+    host: shipping.local
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 3
+    targetCPUUtilizationPercentage: 80
+
+dev:
+  replicaCount: 1
+  imagePullPolicy: IfNotPresent
+  serviceAccountName: shipping-dev
+  resources: {}
+  ingress:
+    enabled: false
+    host: shipping.dev.local
+  autoscaling:
+    enabled: false
+
+qa:
+  replicaCount: 2
+  imagePullPolicy: Always
+  serviceAccountName: shipping-qa
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi
+  ingress:
+    enabled: true
+    host: shipping.qa.local
+  autoscaling:
+    enabled: false
+
+stage:
+  replicaCount: 2
+  imagePullPolicy: Always
+  serviceAccountName: shipping-stage
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+  ingress:
+    enabled: true
+    host: shipping.stage.local
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 4
+    targetCPUUtilizationPercentage: 75
+
+prod:
+  replicaCount: 3
+  imagePullPolicy: Always
+  serviceAccountName: shipping-prod
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 512Mi
+  ingress:
+    enabled: true
+    host: shipping.example.com
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 6
+    targetCPUUtilizationPercentage: 70

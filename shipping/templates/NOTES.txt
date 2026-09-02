@@ -1,0 +1,9 @@
+{{- include "shipping.set.env.variables" . }}
+1. Get the application URL by running these commands:
+{{- if .Values.config.ingress.enabled }}
+  http://{{ .Values.config.ingress.host }}/
+{{- else }}
+  export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l app={{ .Values.appName }} -o jsonpath="{.items[0].metadata.name}")
+  echo "Visit http://127.0.0.1:8080"
+  kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8080:{{ .Values.service.port }}
+{{- end }}

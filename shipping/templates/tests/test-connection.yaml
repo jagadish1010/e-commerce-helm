@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ .Values.microServiceName }}-test-connection
+  labels:
+    app: {{ .Values.appName }}
+  annotations:
+    helm.sh/hook: test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ["wget"]
+      args: ["{{ .Values.microServiceName }}:{{ .Values.service.port }}"]
+  restartPolicy: Never

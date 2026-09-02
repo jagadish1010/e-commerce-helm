@@ -1,0 +1,9 @@
+apiVersion: v2
+name: payments
+description: Payments service of the e-commerce demo
+type: application
+
+# version    -> version of the chart itself, bump on every chart change
+# appVersion -> version of the app being deployed, used as the default image tag
+version: 0.1.0
+appVersion: "1.16.0"

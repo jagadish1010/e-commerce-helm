@@ -1,0 +1,3 @@
+dev_vm_kubeconfig.yaml
+*.tgz
+.DS_Store

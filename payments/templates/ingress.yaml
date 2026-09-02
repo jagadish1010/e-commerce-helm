@@ -1,0 +1,22 @@
+{{- include "payments.set.env.variables" . }}
+{{- if .Values.config.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Values.microServiceName }}
+  labels:
+    app: {{ .Values.appName }}
+    env: {{ .Values.env }}
+spec:
+  rules:
+    - host: {{ .Values.config.ingress.host | quote }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Values.microServiceName }}
+                port:
+                  number: {{ .Values.service.port }}
+{{- end }}

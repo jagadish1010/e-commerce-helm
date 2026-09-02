@@ -1,0 +1,15 @@
+{{- include "payments.set.env.variables" . }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.microServiceName }}
+  labels:
+    app: {{ .Values.appName }}
+    env: {{ .Values.env }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.port }}
+  selector:
+    app: {{ .Values.appName }}

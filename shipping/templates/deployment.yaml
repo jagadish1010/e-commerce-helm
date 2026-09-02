@@ -1,0 +1,30 @@
+{{- include "shipping.set.env.variables" . }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.microServiceName }}
+  labels:
+    app: {{ .Values.appName }}
+    env: {{ .Values.env }}
+spec:
+  replicas: {{ .Values.config.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.appName }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.appName }}
+        env: {{ .Values.env }}
+    spec:
+      serviceAccountName: {{ .Values.config.serviceAccountName }}
+      containers:
+        - name: {{ .Values.microServiceName }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.config.imagePullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.port }}
+          {{- with .Values.config.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
