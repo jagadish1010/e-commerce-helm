@@ -32,7 +32,7 @@ config:
     targetCPUUtilizationPercentage: 80
 
 dev:
-  replicaCount: 1
+  replicaCount: 3
   imagePullPolicy: IfNotPresent
   serviceAccountName: payments-dev
   resources: {}
