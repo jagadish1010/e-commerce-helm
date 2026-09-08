@@ -54,7 +54,7 @@ qa:
       cpu: 200m
       memory: 128Mi
   ingress:
-    enabled: true
+    enabled: false
     host: payments.qa.local
   autoscaling:
     enabled: false
