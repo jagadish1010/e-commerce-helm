@@ -1,0 +1,49 @@
+# ApplicationSet: one object → four Applications
+# payments-dev, payments-qa, shipping-dev, shipping-qa
+#
+# Apply on the cluster where THIS Argo CD runs:
+#   kubectl apply -f argocd/ecommerce-appset.yaml
+#
+# If those Applications already exist (from argocd app create), delete them first
+# or this apply will fight over the same names.
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: ecommerce
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - matrix:
+        generators:
+          - list:
+              elements:
+                - service: payments
+                - service: shipping
+          - list:
+              elements:
+                - env: dev
+                - env: qa
+  template:
+    metadata:
+      name: '{{.service}}-{{.env}}'
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/jagadish1010/e-commerce-helm.git
+        targetRevision: HEAD
+        path: '{{.service}}'
+        helm:
+          parameters:
+            - name: env
+              value: '{{.env}}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: 'ecommerce-{{.env}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

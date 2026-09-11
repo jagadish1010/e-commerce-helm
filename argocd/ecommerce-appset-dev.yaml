@@ -1,0 +1,37 @@
+# DEV cluster only (e.g. 10.196.102.210 / helm-learning)
+# Creates: payments-dev, shipping-dev → namespace ecommerce-dev
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: ecommerce-dev
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - list:
+        elements:
+          - service: payments
+          - service: shipping
+  template:
+    metadata:
+      name: '{{.service}}-dev'
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/jagadish1010/e-commerce-helm.git
+        targetRevision: HEAD
+        path: '{{.service}}'
+        helm:
+          parameters:
+            - name: env
+              value: dev
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: ecommerce-dev
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

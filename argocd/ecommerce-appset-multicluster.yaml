@@ -1,0 +1,53 @@
+# Multi-cluster ApplicationSet: dev env -> dev cluster, qa env -> qa cluster.
+#
+# This is the production shape: ONE Argo CD, many registered clusters, one
+# ApplicationSet that sets a different destination.server per environment.
+#
+# Before applying, replace the two placeholder server URLs with the exact values
+# from `argocd cluster list` (the SERVER column). They must match character for
+# character or Argo CD reports "cluster is not permitted / not registered".
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: ecommerce
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - matrix:
+        generators:
+          # which charts to deploy
+          - list:
+              elements:
+                - service: payments
+                - service: shipping
+          # which environments, and which cluster each one lives on
+          - list:
+              elements:
+                - env: dev
+                  server: https://ci-cs-jhatti-dev-sep-11-k8s.cloudinsights-dev.netapp.com:443
+                - env: qa
+                  server: https://ci-cs-jhatti-qa-sep-11-k8s.cloudinsights-dev.netapp.com:443
+  template:
+    metadata:
+      name: '{{.service}}-{{.env}}'
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/jagadish1010/e-commerce-helm.git
+        targetRevision: HEAD
+        path: '{{.service}}'
+        helm:
+          parameters:
+            - name: env
+              value: '{{.env}}'
+      destination:
+        server: '{{.server}}'
+        namespace: 'ecommerce-{{.env}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

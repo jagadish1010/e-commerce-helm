@@ -1,0 +1,26 @@
+# AppProject: the guardrail production uses instead of project "default".
+# It whitelists which Git repo, which clusters, and which namespaces the
+# ecommerce apps may touch. A typo in an ApplicationSet then fails loudly
+# instead of deploying somewhere unintended.
+#
+# Replace the two destination server URLs with the values from `argocd cluster list`.
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: ecommerce
+  namespace: argocd
+spec:
+  description: E-commerce learning apps (payments, shipping)
+  sourceRepos:
+    - https://github.com/jagadish1010/e-commerce-helm.git
+  destinations:
+    - server: https://ci-cs-jhatti-dev-sep-11-k8s.cloudinsights-dev.netapp.com:443
+      namespace: ecommerce-dev
+    - server: https://ci-cs-jhatti-qa-sep-11-k8s.cloudinsights-dev.netapp.com:443
+      namespace: ecommerce-qa
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+  namespaceResourceWhitelist:
+    - group: "*"
+      kind: "*"

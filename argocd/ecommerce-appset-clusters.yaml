@@ -1,0 +1,53 @@
+# Production-shaped ApplicationSet: clusters generator.
+#
+# Instead of hard-coding cluster URLs, this discovers every cluster registered in
+# Argo CD that carries the label ecommerce=true, and reads its env label to pick
+# the Helm overlay and namespace. Adding a third cluster later means registering
+# it with the right labels - this file does not change.
+#
+# Requires each registered cluster to be labelled, e.g.:
+#   argocd cluster add <ctx> --name dev --label ecommerce=true --label env=dev
+#   argocd cluster add <ctx> --name qa  --label ecommerce=true --label env=qa
+#
+# The management cluster has no such label, so Argo CD never deploys onto itself.
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: ecommerce
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - matrix:
+        generators:
+          - list:
+              elements:
+                - service: payments
+                - service: shipping
+          - clusters:
+              selector:
+                matchLabels:
+                  ecommerce: "true"
+  template:
+    metadata:
+      name: '{{.service}}-{{.metadata.labels.env}}'
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/jagadish1010/e-commerce-helm.git
+        targetRevision: HEAD
+        path: '{{.service}}'
+        helm:
+          parameters:
+            - name: env
+              value: '{{.metadata.labels.env}}'
+      destination:
+        server: '{{.server}}'
+        namespace: 'ecommerce-{{.metadata.labels.env}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
