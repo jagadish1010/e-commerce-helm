@@ -1,6 +1,8 @@
 # Argo CD setup (end to end)
 
-This is the full path we used: install Argo CD **on the Kubernetes cluster**, install the **CLI on the Mac**, put these Helm charts on **GitHub**, then create Applications so Argo CD syncs them.
+This is the **single-cluster** path: install Argo CD, CLI, GitHub, then `argocd app create`.
+
+Multi-cluster **ApplicationSet** (DEV + QA, one Argo CD on `10.196.102.210`) is documented in [APPLICATIONSET.md](APPLICATIONSET.md).
 
 Important: Argo CD is **not** an app that runs on the Mac. The **server** runs as pods in the cluster. The Mac only has `kubectl`, the `argocd` CLI, and a browser. The UI at `https://localhost:8080` is a **port-forward** into the `argocd-server` pod.
 

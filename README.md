@@ -1,5 +1,17 @@
 # E-commerce Helm charts (learning)
 
+Sample repo for **Argo CD + Helm + ApplicationSet**: https://github.com/jagadish1010/e-commerce-helm
+
+| Doc | Contents |
+|---|---|
+| [APPLICATIONSET.md](APPLICATIONSET.md) | What we learned: Application vs ApplicationSet vs Project vs app-of-apps, 3-VM lab, every step, UI, gotchas |
+| [ARGOCD_SETUP.md](ARGOCD_SETUP.md) | Install Argo CD on one cluster, port-forward UI, first `argocd app create` |
+| [examples/README.md](examples/README.md) | Alternate ApplicationSets — do not apply with the live one |
+
+Live GitOps YAML (apply these): `argocd/ecommerce-appset-clusters.yaml`, optional `argocd/ecommerce-project.yaml`. Optional bootstrap: `bootstrap/root-app.yaml`.
+
+---
+
 One `values.yaml` per chart. Environment is chosen with `env`, like `cs-service-apikey`.
 
 ```text

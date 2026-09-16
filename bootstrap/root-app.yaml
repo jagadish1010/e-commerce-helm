@@ -1,0 +1,21 @@
+# App-of-apps (optional). See APPLICATIONSET.md section J.
+# One Application that syncs YAML under argocd/ from Git (ApplicationSet + AppProject).
+# Apply ONCE with kubectl after Argo CD is installed. Do not put this file under argocd/.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ecommerce-root
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/jagadish1010/e-commerce-helm.git
+    targetRevision: HEAD
+    path: argocd
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
